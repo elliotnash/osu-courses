@@ -13,12 +13,12 @@ fileGroups:
 
 tasks:
     dev:
-        command: 'bun --bun run --watch src/index.ts'
+        command: 'bun --bun run --watch src/server.ts'
         platform: 'bun'
         inputs:
             - '@group(sources)'
     start:
-        command: 'bun --bun run src/index.ts'
+        command: 'bun --bun run src/server.ts'
         platform: 'bun'
         inputs:
             - '@group(sources)'
