@@ -1,11 +1,11 @@
-import { treaty } from "@elysiajs/eden";
-import { isServer } from "solid-js/web";
-import { App } from "api";
+import { treaty } from '@elysiajs/eden';
+import { isServer } from 'solid-js/web';
+import { App } from 'api';
 
 let getHeaders: any;
 let setResponseHeaders: any;
 if (isServer) {
-  ({ getHeaders, setResponseHeaders } = await import("vinxi/http"));
+  ({ getHeaders, setResponseHeaders } = await import('vinxi/http'));
 }
 
 export default treaty<App>('http://localhost:8080', {
@@ -23,5 +23,5 @@ export default treaty<App>('http://localhost:8080', {
     if (isServer) {
       setResponseHeaders(response.headers);
     }
-  }
+  },
 });

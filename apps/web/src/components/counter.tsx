@@ -1,28 +1,29 @@
-import { createMutation, createQuery } from "@tanstack/solid-query";
-import { createEffect, createMemo, createSignal, Suspense } from "solid-js";
-import { Button } from "ui/components/button";
-import api from "~/api";
-import { isServer } from "solid-js/web";
+import { createMutation, createQuery } from '@tanstack/solid-query';
+import { createSignal } from 'solid-js';
+import { Button } from 'ui/components/button';
+import api from '~/api';
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogTitle,
-  AlertDialogTrigger
-} from "ui/components/alert-dialog";
-import { DialogFooter } from "ui/components/dialog";
+  AlertDialogTrigger,
+} from 'ui/components/alert-dialog';
+import { DialogFooter } from 'ui/components/dialog';
 
 export default function Counter() {
   const clicksQuery = createQuery(() => ({
     queryKey: ['clicks'],
-    queryFn: async () => (await api.clicks.get()).data!
-  }))
-  const [clicks, setClicks] = createSignal<number | undefined>(clicksQuery.data);
+    queryFn: async () => (await api.clicks.get()).data!,
+  }));
+  const [clicks, setClicks] = createSignal<number | undefined>(
+    clicksQuery.data
+  );
 
   const { mutate: addClick } = createMutation(() => ({
     mutationFn: async () => await api.click.put(),
     onSuccess: (res) => setClicks(res.data ?? undefined),
-    onMutate: () => setClicks((clicks() ?? 0) + 1)
+    onMutate: () => setClicks((clicks() ?? 0) + 1),
   }));
 
   const { mutate: deleteClicks } = createMutation(() => ({
@@ -41,19 +42,30 @@ export default function Counter() {
       >
         Clicks: {clicks()}
       </Button>
-      <AlertDialog open={confirmOpen()} onOpenChange={setConfirmOpen} >
-        <AlertDialogTrigger as={Button} variant="destructive" >Reset Clicks</AlertDialogTrigger>
+      <AlertDialog open={confirmOpen()} onOpenChange={setConfirmOpen}>
+        <AlertDialogTrigger as={Button} variant="destructive">
+          Reset Clicks
+        </AlertDialogTrigger>
         <AlertDialogContent>
-          <AlertDialogTitle>Are you sure you want to reset clicks?</AlertDialogTitle>
+          <AlertDialogTitle>
+            Are you sure you want to reset clicks?
+          </AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your clicks from our servers.
+            This action cannot be undone. This will permanently delete your
+            clicks from our servers.
           </AlertDialogDescription>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmOpen(false)}>Cancel</Button>
-            <Button onClick={() => {
-              deleteClicks();
-              setConfirmOpen(false);
-            }}>Continue</Button>
+            <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                deleteClicks();
+                setConfirmOpen(false);
+              }}
+            >
+              Continue
+            </Button>
           </DialogFooter>
         </AlertDialogContent>
       </AlertDialog>

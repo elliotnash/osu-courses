@@ -1,15 +1,15 @@
-import { For } from "solid-js";
-import { useLocation } from "@solidjs/router";
+import { For } from 'solid-js';
+import { useLocation } from '@solidjs/router';
 
-import { cn } from "ui/lib/utils";
+import { cn } from 'ui/lib/utils';
 import { RiLogosGithubLine } from 'solid-icons/ri';
-import { ModeToggle } from "~/components/mode-toggle";
-import { buttonVariants } from "ui/components/button";
+import { ModeToggle } from '~/components/mode-toggle';
+import { buttonVariants } from 'ui/components/button';
 
 export default function Navbar() {
   const location = useLocation();
   const active = (path: string) =>
-    path == location.pathname ? "text-foreground/80" : "text-foreground/60";
+    path == location.pathname ? 'text-foreground/80' : 'text-foreground/60';
   return (
     <header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div class="container flex h-14 max-w-screen-2xl items-center">
@@ -18,21 +18,35 @@ export default function Navbar() {
             <span class="font-bold inline-block">DBEST-Moon</span>
           </a>
           <nav class="hidden sm:flex items-center gap-4 text-sm lg:gap-6">
-            <a href="/" class={`${active("/")} transition-colors hover:text-foreground/80`}>Home</a>
-            <a href="/about" class={`${active("/about")} transition-colors hover:text-foreground/80`}>About</a>
+            <a
+              href="/"
+              class={`${active('/')} transition-colors hover:text-foreground/80`}
+            >
+              Home
+            </a>
+            <a
+              href="/about"
+              class={`${active('/about')} transition-colors hover:text-foreground/80`}
+            >
+              About
+            </a>
           </nav>
         </div>
 
         <div class="flex flex-1 items-center space-x-2 justify-end">
           <div class="flex items-center">
-            <a href="https://github.com/elliotnash/dbest-moon" target="_blank" rel="noreferrer">
+            <a
+              href="https://github.com/elliotnash/dbest-moon"
+              target="_blank"
+              rel="noreferrer"
+            >
               <div
                 class={cn(
                   buttonVariants({
-                    size: "sm",
-                    variant: "ghost"
+                    size: 'sm',
+                    variant: 'ghost',
                   }),
-                  "w-9 px-0"
+                  'w-9 px-0'
                 )}
               >
                 <RiLogosGithubLine class="size-5" />
@@ -44,5 +58,5 @@ export default function Navbar() {
         </div>
       </div>
     </header>
-  )
+  );
 }

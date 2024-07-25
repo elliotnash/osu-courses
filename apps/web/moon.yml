@@ -21,7 +21,7 @@ tasks:
     platform: 'bun'
     inputs:
       - '@group(sources)'
-    outputs: 
+    outputs:
       - '@group(outputs)'
   start:
     command: 'vinxi start'

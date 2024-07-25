@@ -1,7 +1,7 @@
 import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from "postgres";
+import postgres from 'postgres';
 import * as schema from './schema';
-import env from "~/env";
+import env from '~/env';
 
 export const db = drizzle(
   postgres({
@@ -10,8 +10,9 @@ export const db = drizzle(
     user: env.DB_USER,
     password: env.DB_PASSWORD,
     max: env.DB_MAX_CONNECTIONS,
-    ssl: false
-  }), {
+    ssl: false,
+  }),
+  {
     schema,
   }
 );

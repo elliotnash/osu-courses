@@ -1,5 +1,5 @@
-import { t } from "elysia";
-import { parse } from "./util";
+import { t } from 'elysia';
+import { parse } from './util';
 
 export const envSchema = t.Object({
   // Http server settings
@@ -13,7 +13,7 @@ export const envSchema = t.Object({
   DB_PORT: t.Numeric({ default: 5432 }),
 
   // Database options
-  DB_MAX_CONNECTIONS: t.Numeric({ default: 10 })
+  DB_MAX_CONNECTIONS: t.Numeric({ default: 10 }),
 });
 
 export default parse(envSchema, { ...process.env });

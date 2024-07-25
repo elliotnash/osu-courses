@@ -2,7 +2,7 @@ import { pgTable, text, timestamp } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-typebox';
 
 export const clicks = pgTable('users', {
-	deviceId: text('id').notNull(),
+  deviceId: text('id').notNull(),
   time: timestamp('time').notNull(),
 });
 
