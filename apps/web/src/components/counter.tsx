@@ -17,11 +17,11 @@ export default function Counter() {
     queryKey: ['clicks'],
     queryFn: async () => (await api.clicks.get()).data!
   }))
-  const [clicks, setClicks] = createSignal<number>(clicksQuery.data);
+  const [clicks, setClicks] = createSignal<number | undefined>(clicksQuery.data);
 
   const { mutate: addClick } = createMutation(() => ({
     mutationFn: async () => await api.click.put(),
-    onSuccess: (res) => setClicks(res.data),
+    onSuccess: (res) => setClicks(res.data ?? undefined),
     onMutate: () => setClicks((clicks() ?? 0) + 1)
   }));
 

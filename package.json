@@ -2,6 +2,10 @@
   "private": true,
   "name": "osu-courses",
   "infra": "monorepo",
+  "type": "module",
+  "devDependencies": {
+    "prettier": "^3.3.3"
+  },
   "workspaces": [
     "apps/*",
     "packages/*"

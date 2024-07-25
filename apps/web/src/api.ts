@@ -1,10 +1,9 @@
 import { treaty } from "@elysiajs/eden";
 import { isServer } from "solid-js/web";
-import { parse } from "set-cookie-parser";
 import { App } from "api";
 
-let getHeaders;
-let setResponseHeaders;
+let getHeaders: any;
+let setResponseHeaders: any;
 if (isServer) {
   ({ getHeaders, setResponseHeaders } = await import("vinxi/http"));
 }

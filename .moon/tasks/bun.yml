@@ -1,0 +1,22 @@
+tasks:
+    format:
+        command:
+            - 'prettier'
+            # Use the same config for the entire repo
+            - '--config'
+            - '@in(1)'
+            # Use the same ignore patterns as well
+            - '--ignore-path'
+            - '@in(0)'
+            # Fail for unformatted code
+            - '--write'
+            # Run in current dir
+            - '.'
+        inputs:
+            - '/.prettierignore'
+            - '/.prettierrc.js'
+            # Source and test files
+            - 'src/**/*'
+            - 'tests/**/*'
+            # Config and other files
+            - '**/*.{md,mdx,yml,yaml,json}'

@@ -1,6 +1,5 @@
 import { useColorMode } from "@kobalte/core"
  
-// import { IconLaptop, IconMoon, IconSun } from "ui/components/icons"
 import { RiWeatherMoonLine, RiWeatherSunLine, RiDeviceMacbookLine } from 'solid-icons/ri';
 import { Button } from "ui/components/button"
 import {
