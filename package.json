@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "name": "osu-courses",
+  "infra": "monorepo",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "packageManager": "bun@1.1.20"
+}

@@ -1,0 +1,21 @@
+.moon/cache
+.solid
+dist
+.vscode
+node_modules
+.dockerignore
+.env
+.env.local
+.env.example
+.gitignore
+docker-compose.yml
+Dockerfile
+LICENSE
+LICENSE.*
+README.*
+.DS_Store
+.git
+
+# System Files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.solid.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "app.config.ts",
+    "../../packages/api-client/**/*",
+    "../../packages/ui/**/*",
+    "../api/**/*",
+    "src/**/*"
+  ],
+  "references": [
+    {
+      "path": "../../packages/api-client"
+    },
+    {
+      "path": "../../packages/ui"
+    },
+    {
+      "path": "../api"
+    }
+  ]
+}
