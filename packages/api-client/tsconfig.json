@@ -1,11 +1,9 @@
 {
-  "extends": "../../tsconfig.bun.json",
-  "references": [
-    {
-      "path": "../../apps/api"
-    }
-  ],
-  "include": [
-    "../../apps/api/**/*"
-  ]
+    "extends": "../../tsconfig.bun.json",
+    "references": [
+        {
+            "path": "../../apps/api"
+        }
+    ],
+    "include": ["../../apps/api/**/*"]
 }

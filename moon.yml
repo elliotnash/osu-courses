@@ -2,12 +2,38 @@ platform: 'system'
 type: 'configuration'
 
 tasks:
-  docker-dev:
-    command: docker compose -f docker-compose.dev.yml run --rm --service-ports app moon
-    local: true
-  docker-prod:
-    command: docker compose -f docker-compose.dev.yml run --rm --service-ports app moon
-    local: true
-  docker-deploy:
-    command: docker compose -f docker-compose.prod.yml --build --force-recreate -d up
-    local: true
+    docker-dev:
+        command: docker compose -f docker-compose.dev.yml run --rm --service-ports app moon
+        local: true
+    docker-prod:
+        command: docker compose -f docker-compose.dev.yml run --rm --service-ports app moon
+        local: true
+    docker-deploy:
+        command: docker compose -f docker-compose.prod.yml --build --force-recreate -d up
+        local: true
+
+    format:
+        command:
+            - 'prettier'
+            # Use the same config for the entire repo
+            - '--config'
+            - '@in(0)'
+            # Use the same ignore patterns as well
+            - '--ignore-path'
+            - '@in(1)'
+            # Ignore gitignore
+            - '--ignore-path'
+            - '@in(2)'
+            # Write changes
+            - '--write'
+            # Run in current dir
+            - '.'
+        inputs:
+            - '/.prettierrc.js'
+            - '/.prettierignore'
+            - '/.gitignore'
+            # Source and test files
+            - '**/src/**/*'
+            - '**/tests/**/*'
+            # Config and other files
+            - '**/*.{md,mdx,yml,yaml,json}'

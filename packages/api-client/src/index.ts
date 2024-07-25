@@ -1,1 +1,1 @@
-export type { default as App } from 'api';
+export type { default as App } from 'api'

@@ -3,33 +3,33 @@ type: 'application'
 stack: 'frontend'
 
 fileGroups:
-  sources:
-    - 'src/**/*'
-    - 'public/**/*'
-  outputs:
-    - '.output/**/*'
-    - '.vinxi/**/*'
+    sources:
+        - 'src/**/*'
+        - 'public/**/*'
+    outputs:
+        - '.output/**/*'
+        - '.vinxi/**/*'
 
 tasks:
-  dev:
-    command: 'vinxi dev'
-    platform: 'bun'
-    inputs:
-      - '@group(sources)'
-  build:
-    command: 'vinxi build'
-    platform: 'bun'
-    inputs:
-      - '@group(sources)'
-    outputs: 
-      - '@group(outputs)'
-  start:
-    command: 'vinxi start'
-    platform: 'bun'
-    inputs:
-      - '@group(sources)'
-    deps:
-      - build
-  version:
-    command: 'vinxi version'
-    platform: 'bun'
+    dev:
+        command: 'vinxi dev'
+        platform: 'bun'
+        inputs:
+            - '@group(sources)'
+    build:
+        command: 'vinxi build'
+        platform: 'bun'
+        inputs:
+            - '@group(sources)'
+        outputs:
+            - '@group(outputs)'
+    start:
+        command: 'vinxi start'
+        platform: 'bun'
+        inputs:
+            - '@group(sources)'
+        deps:
+            - build
+    version:
+        command: 'vinxi version'
+        platform: 'bun'
