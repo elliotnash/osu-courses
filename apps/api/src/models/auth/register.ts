@@ -1,14 +1,18 @@
-import { t } from 'elysia'
-import { accountInsertSchema } from '~/database/schema'
+import { t } from 'elysia';
+import { accountInsertSchema } from '~/database/schema';
+import { osuEmailRegex, strongPasswordRegex } from '~/consts';
 
 export const registerBodySchema = t.Composite([
   t.Omit(accountInsertSchema, [
-    'cuid',
+    'id',
+    'email',
+    'emailVerified',
     'registrationDate',
     'lastUpdateDate',
     'lastLoginDate',
   ]),
   t.Object({
-    password: t.String(),
+    email: t.RegExp(osuEmailRegex),
+    password: t.RegExp(strongPasswordRegex),
   }),
-])
+]);

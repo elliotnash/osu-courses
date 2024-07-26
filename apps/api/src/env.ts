@@ -14,6 +14,12 @@ export const envSchema = t.Object({
 
   // Database options
   DB_MAX_CONNECTIONS: t.Numeric({ default: 10 }),
+
+  // Misc settings
+  PRODUCTION: t
+    .Transform(t.Numeric({ default: 0 }))
+    .Decode((v) => v != 0)
+    .Encode((b) => (b ? 1 : 0)),
 });
 
 export default parse(envSchema, { ...process.env });

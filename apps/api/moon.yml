@@ -3,38 +3,42 @@ type: 'application'
 stack: 'backend'
 
 fileGroups:
-    sources:
-        - 'src/**/*'
-    db-sources:
-        - 'src/database/**/*'
-        - 'drizzle.config.ts'
-    migrations:
-        - 'drizzle/**/*'
+  sources:
+    - 'src/**/*'
+  db-sources:
+    - 'src/database/**/*'
+    - 'drizzle.config.ts'
+  migrations:
+    - 'drizzle/**/*'
 
 tasks:
-    dev:
-        command: 'bun --bun run --watch src/server.ts'
-        platform: 'bun'
-        inputs:
-            - '@group(sources)'
-    start:
-        command: 'bun --bun run src/server.ts'
-        platform: 'bun'
-        inputs:
-            - '@group(sources)'
-    generate-db:
-        command: 'drizzle-kit generate'
-        platform: 'bun'
-        inputs:
-            - '@group(db-sources)'
-            - '@group(sources)'
-            - '@group(migrations)'
-    migrate-db:
-        command: 'drizzle-kit migrate'
-        platform: 'bun'
-        inputs:
-            - '@group(migrations)'
-    inspect-db:
-        command: 'drizzle-kit studio --host=0.0.0.0'
-        platform: 'bun'
-        local: true
+  dev:
+    command: 'bun --bun run --watch src/server.ts'
+    platform: 'bun'
+    inputs:
+      - '@group(sources)'
+  start:
+    command: 'bun --bun run src/server.ts'
+    platform: 'bun'
+    inputs:
+      - '@group(sources)'
+  generate-db:
+    command: 'drizzle-kit generate'
+    platform: 'bun'
+    options:
+      interactive: true
+    inputs:
+      - '@group(db-sources)'
+      - '@group(sources)'
+      - '@group(migrations)'
+  migrate-db:
+    command: 'drizzle-kit migrate'
+    platform: 'bun'
+    options:
+      interactive: true
+    inputs:
+      - '@group(migrations)'
+  inspect-db:
+    command: 'drizzle-kit studio --host=0.0.0.0'
+    platform: 'bun'
+    local: true

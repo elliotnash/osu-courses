@@ -1,8 +1,8 @@
-import { Elysia, t } from 'elysia'
-import account from '~/routes/auth/account'
+import { Elysia, t } from 'elysia';
+import auth from '~/routes/auth/plugin';
 
 export default new Elysia()
   .get('/ping', () => 'Pong!' as const, {
     response: t.Literal('Pong!'),
   })
-  .use(account)
+  .use(auth);

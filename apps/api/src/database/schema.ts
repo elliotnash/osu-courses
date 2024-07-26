@@ -1,9 +1,21 @@
-import { boolean, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
-import { createInsertSchema, createSelectSchema } from 'drizzle-typebox'
+import {
+  boolean,
+  pgTable,
+  text,
+  timestamp,
+  varchar,
+} from 'drizzle-orm/pg-core';
+import { createInsertSchema, createSelectSchema } from 'drizzle-typebox';
+import { t } from 'elysia';
+import { usPhoneRegex } from '~/consts';
+import { createId } from '@paralleldrive/cuid2';
 
 export const accounts = pgTable('accounts', {
-  cuid: text('cuid').primaryKey(),
+  id: text('id')
+    .$default(() => createId())
+    .primaryKey(),
   email: text('email').unique().notNull(),
+  emailVerified: boolean('email_verified').default(false).notNull(),
   username: text('username').unique().notNull(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
@@ -23,39 +35,59 @@ export const accounts = pgTable('accounts', {
   })
     .defaultNow()
     .notNull(),
-})
-export const accountInsertSchema = createInsertSchema(accounts)
-export const accountSelectSchema = createSelectSchema(accounts)
+});
+const accountsRefine = {
+  email: t.String({ format: 'email' }),
+  phoneNumber: t.RegExp(usPhoneRegex),
+};
+export const accountInsertSchema = createInsertSchema(accounts, accountsRefine);
+export const accountSelectSchema = createSelectSchema(accounts, accountsRefine);
 
-export const tokens = pgTable('tokens', {
-  cuid: text('cuid').primaryKey(),
-  userCuid: text('user_cuid')
-    .references(() => accounts.cuid)
+export const sessions = pgTable('sessions', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .references(() => accounts.id)
     .notNull(),
-  hash: text('hash').notNull(),
   created: timestamp('created').defaultNow().notNull(),
-  expires: timestamp('created').notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
   revoked: boolean('revoked').default(false).notNull(),
-})
-export const tokenInsertSchema = createInsertSchema(tokens)
-export const tokenSelectSchema = createSelectSchema(tokens)
+});
+export const sessionInsertSchema = createInsertSchema(sessions);
+export const sessionSelectSchema = createSelectSchema(sessions);
 
 export const passwordAuth = pgTable('password_auth', {
-  cuid: text('cuid').primaryKey(),
-  userCuid: text('user_cuid')
-    .references(() => accounts.cuid)
+  id: text('id')
+    .$default(() => createId())
+    .primaryKey(),
+  userId: text('user_id')
+    .references(() => accounts.id)
     .notNull(),
   hash: text('hash').notNull(),
-})
-export const passwordAuthInsertSchema = createInsertSchema(passwordAuth)
-export const passwordAuthSelectSchema = createSelectSchema(passwordAuth)
+});
+export const passwordAuthInsertSchema = createInsertSchema(passwordAuth);
+export const passwordAuthSelectSchema = createSelectSchema(passwordAuth);
 
 export const totpAuth = pgTable('totp_auth', {
-  cuid: text('cuid').primaryKey(),
-  userCuid: text('user_cuid')
-    .references(() => accounts.cuid)
+  id: text('id')
+    .$default(() => createId())
+    .primaryKey(),
+  userId: text('user_id')
+    .references(() => accounts.id)
     .notNull(),
   totp: text('totp').notNull(),
-})
-export const totpAuthInsertSchema = createInsertSchema(totpAuth)
-export const totpAuthSelectSchema = createSelectSchema(totpAuth)
+});
+export const totpAuthInsertSchema = createInsertSchema(totpAuth);
+export const totpAuthSelectSchema = createSelectSchema(totpAuth);
+
+export const emailAuth = pgTable('email_auth', {
+  id: text('id')
+    .$default(() => createId())
+    .primaryKey(),
+  userId: text('user_id')
+    .references(() => accounts.id)
+    .notNull(),
+  code: varchar('code', { length: 6 }),
+  expiresAt: timestamp('expiresAt').notNull(),
+});
+export const emailAuthInsertSchema = createInsertSchema(emailAuth);
+export const emailAuthSelectSchema = createSelectSchema(emailAuth);

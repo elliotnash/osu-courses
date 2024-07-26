@@ -29,7 +29,7 @@ tasks:
       # Run in current dir
       - '.'
     inputs:
-      - '/.prettierrc.js'
+      - '/.prettierrc'
       - '/.prettierignore'
       - '/.gitignore'
       # Source and test files
@@ -55,7 +55,7 @@ tasks:
       # Run in current dir
       - '.'
     inputs:
-      - '/.prettierrc.js'
+      - '/.prettierrc'
       - '/.prettierignore'
       - '/.gitignore'
       # Source and test files

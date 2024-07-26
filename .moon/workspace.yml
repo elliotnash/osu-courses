@@ -12,12 +12,12 @@ $schema: 'https://moonrepo.dev/schemas/workspace.json'
 # path to the project folder as the map value. File paths are relative from the workspace root,
 # and cannot reference projects located outside the workspace boundary.
 projects:
-    root: '.'
-    web: 'apps/web'
-    api: 'apps/api'
-    api-client: 'packages/api-client'
-    ui: 'packages/ui'
+  root: '.'
+  web: 'apps/web'
+  api: 'apps/api'
+  api-client: 'packages/api-client'
+  ui: 'packages/ui'
 
 vcs:
-    manager: 'git'
-    defaultBranch: 'moon'
+  manager: 'git'
+  defaultBranch: 'moon'

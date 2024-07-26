@@ -3,5 +3,5 @@ type: 'library'
 stack: 'infrastructure'
 
 fileGroups:
-    sources:
-        - 'src/**/*'
+  sources:
+    - 'src/**/*'
