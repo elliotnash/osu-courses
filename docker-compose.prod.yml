@@ -10,7 +10,7 @@ services:
       - ./data/prod/postgres:/var/lib/postgresql/data
 
   app:
-    image: dbest-moon/app:latest
+    image: osu-courses/app:latest
     restart: always
     build:
       context: .

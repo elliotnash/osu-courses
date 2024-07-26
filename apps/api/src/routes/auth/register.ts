@@ -4,10 +4,18 @@ import { createId } from '@paralleldrive/cuid2';
 import { db } from '~/database/db';
 import { accounts, passwordAuth } from '~/database/schema';
 import { lucia } from '~/auth';
+import { eq } from 'drizzle-orm';
 
 export default new Elysia().post(
   '/register',
   async ({ cookie, body }) => {
+    const user = await db.query.accounts.findFirst({
+      where: eq(accounts.email, body.email),
+    });
+    if (user) {
+      throw new Error('Email already exists');
+    }
+
     const userId = createId();
     const passwordHash = await Bun.password.hash(body.password, {
       algorithm: 'argon2id',

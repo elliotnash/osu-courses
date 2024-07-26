@@ -6,3 +6,9 @@ export const osuEmailRegex =
 
 export const usPhoneRegex =
   /^(\+0?1)?\s?\(?(\d{3})\)?[\s.-]?(\d{3})[\s.-]?(\d{4})$/;
+
+export const hashAlgo = {
+  algorithm: 'argon2id' as const,
+  memoryCost: 19456 as const,
+  timeCost: 2 as const,
+};
