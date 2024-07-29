@@ -9,13 +9,14 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-typebox';
 import { t } from 'elysia';
 import { usPhoneRegex } from '~/consts';
 import { createId } from '@paralleldrive/cuid2';
+import { createToken } from '~/util';
 
 export const accounts = pgTable('accounts', {
   id: text('id')
     .$default(() => createId())
     .primaryKey(),
   email: text('email').unique().notNull(),
-  emailVerified: boolean('email_verified').default(false).notNull(),
+  verified: boolean('verified').default(false).notNull(),
   username: text('username').unique().notNull(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
@@ -43,6 +44,20 @@ const accountsRefine = {
 export const accountInsertSchema = createInsertSchema(accounts, accountsRefine);
 export const accountSelectSchema = createSelectSchema(accounts, accountsRefine);
 
+export const loginTokens = pgTable('login_tokens', {
+  id: text('id')
+    .$default(() => createId())
+    .primaryKey(),
+  userId: text('user_id')
+    .references(() => accounts.id)
+    .notNull(),
+  token: text('token').notNull(),
+  created: timestamp('created').defaultNow().notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
+});
+export const loginTokensInsertSchema = createInsertSchema(loginTokens);
+export const loginTokensSelectSchema = createSelectSchema(loginTokens);
+
 export const sessions = pgTable('sessions', {
   id: text('id').primaryKey(),
   userId: text('user_id')
@@ -50,7 +65,6 @@ export const sessions = pgTable('sessions', {
     .notNull(),
   created: timestamp('created').defaultNow().notNull(),
   expiresAt: timestamp('expiresAt').notNull(),
-  revoked: boolean('revoked').default(false).notNull(),
 });
 export const sessionInsertSchema = createInsertSchema(sessions);
 export const sessionSelectSchema = createSelectSchema(sessions);

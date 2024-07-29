@@ -30,6 +30,12 @@ services:
       DB_PASSWORD: ${DB_PASSWORD:-example}
       DB_HOST: database
       DB_PORT: 5432
+      DB_MAX_CONNECTIONS: ${DB_MAX_CONNECTIONS}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASSWORD: ${SMTP_PASSWORD}
+      SMTP_SENDER: ${SMTP_SENDER}
     volumes:
       - ./data/prod/drizzle:/app/apps/api/drizzle
       - ./data/prod/moon-cache:/app/.moon/cache

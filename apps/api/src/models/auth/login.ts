@@ -1,7 +1,11 @@
 import { t } from 'elysia';
-import { accountSelectSchema } from '~/database/schema';
+import {
+  accountSelectSchema,
+  loginTokens,
+  loginTokensSelectSchema,
+} from '~/database/schema';
 
-export const loginBodySchema = t.Composite([
+export const initiateLoginBodySchema = t.Composite([
   t.Omit(accountSelectSchema, [
     'id',
     'emailVerified',
@@ -17,3 +21,11 @@ export const loginBodySchema = t.Composite([
     password: t.String(),
   }),
 ]);
+
+export const initiateLoginSchema = t.Omit(loginTokensSelectSchema, [
+  'userId',
+  'created',
+  'expiresAt',
+]);
+
+export const loginBodySchema = t.Composite([initiateLoginSchema]);

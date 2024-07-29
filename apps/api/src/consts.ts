@@ -12,3 +12,5 @@ export const hashAlgo = {
   memoryCost: 19456 as const,
   timeCost: 2 as const,
 };
+
+export const verificationCodeLength = 6;

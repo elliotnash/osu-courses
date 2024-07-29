@@ -12,6 +12,13 @@ export const envSchema = t.Object({
   DB_PASSWORD: t.String(),
   DB_PORT: t.Numeric({ default: 5432 }),
 
+  // Smtp credentials
+  SMTP_PORT: t.Numeric({ default: 587 }),
+  SMTP_HOST: t.Optional(t.String()),
+  SMTP_USER: t.Optional(t.String()),
+  SMTP_PASSWORD: t.Optional(t.String()),
+  SMTP_SENDER: t.Optional(t.String()),
+
   // Database options
   DB_MAX_CONNECTIONS: t.Numeric({ default: 10 }),
 

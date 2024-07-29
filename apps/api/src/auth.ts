@@ -1,13 +1,13 @@
 import { Adapter, Lucia } from 'lucia';
 import { db } from '~/database/db';
-import { sessions } from '~/database/schema';
-import { eq, lt } from 'drizzle-orm';
+import { accounts, accountSelectSchema, sessions } from '~/database/schema';
+import { eq, gt } from 'drizzle-orm';
 import env from '~/env';
+import { t } from 'elysia';
 
 const AuthAdapter = {
   async deleteExpiredSessions() {
-    const now = new Date();
-    await db.delete(sessions).where(lt(sessions.expiresAt, now));
+    await db.delete(sessions).where(gt(sessions.expiresAt, new Date()));
   },
   async deleteSession(sessionId) {
     await db.delete(sessions).where(eq(sessions.id, sessionId));
@@ -22,9 +22,18 @@ const AuthAdapter = {
     if (!session) {
       return [null, null];
     }
+    const account = await db.query.accounts.findFirst({
+      where: eq(accounts.id, session.userId),
+    });
+    if (!account) {
+      return [null, null];
+    }
     return [
       { ...session, attributes: {} } ?? null,
-      { id: session.userId, attributes: {} } ?? null,
+      {
+        id: session.userId,
+        attributes: account,
+      } ?? null,
     ];
   },
   async getUserSessions(userId) {
@@ -50,11 +59,14 @@ export const lucia = new Lucia(AuthAdapter, {
       secure: env.PRODUCTION,
     },
   },
+  getUserAttributes: (attributes) => attributes,
 });
+
+const databaseUserAttributesSchema = t.Omit(accountSelectSchema, ['id']);
 
 declare module 'lucia' {
   interface Register {
     Lucia: typeof lucia;
-    DatabaseUserAttributes: {};
+    DatabaseUserAttributes: typeof databaseUserAttributesSchema.static;
   }
 }

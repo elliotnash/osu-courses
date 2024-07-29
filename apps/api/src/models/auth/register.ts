@@ -6,7 +6,7 @@ export const registerBodySchema = t.Composite([
   t.Omit(accountInsertSchema, [
     'id',
     'email',
-    'emailVerified',
+    'verified',
     'registrationDate',
     'lastUpdateDate',
     'lastLoginDate',
@@ -16,3 +16,7 @@ export const registerBodySchema = t.Composite([
     password: t.RegExp(strongPasswordRegex),
   }),
 ]);
+
+export const verifySubmitBodySchema = t.Object({
+  code: t.String({ minLength: 6, maxLength: 6 }),
+});
