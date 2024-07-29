@@ -7,9 +7,9 @@ import { createId } from '@paralleldrive/cuid2';
 import { db } from '~/database/db';
 import { accounts, emailAuth, passwordAuth, sessions } from '~/database/schema';
 import { lucia } from '~/auth';
-import { eq, and, lt, gt } from 'drizzle-orm';
+import { eq, and, gt } from 'drizzle-orm';
 import { createVerificationCode } from '~/util';
-import { addMinutes } from 'date-fns/fp';
+import { addHours } from 'date-fns/fp';
 import auth from '~/middleware/auth';
 import '~/auth';
 import { mailer } from '~/mailer';
@@ -66,12 +66,21 @@ export default new Elysia()
     await db.insert(emailAuth).values({
       userId: user.id,
       code,
-      expiresAt: addMinutes(15, new Date()),
+      expiresAt: addHours(1, new Date()),
     });
     await mailer.sendMail({
       to: user.email,
-      subject: 'Verify your OSU Courses API email',
-      text: `Your 6 digit verification code is ${code}`,
+      subject: `Your verification code is ${code}`,
+      templateName: 'otp',
+      templateData: {
+        title: 'Welcome to OSU Courses API',
+        message:
+          'Please verify your email with the code below to complete account setup.',
+        warning:
+          "If you didn't request this code, you can safely ignore this email.",
+        codeGroup1: code.substring(0, 3),
+        codeGroup2: code.substring(3),
+      },
     });
   })
   .post(
@@ -100,5 +109,3 @@ export default new Elysia()
       body: verifySubmitBodySchema,
     }
   );
-
-new Elysia().use(auth).get('/test', ({ session }) => {});
