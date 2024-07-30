@@ -13,6 +13,12 @@ import { addHours } from 'date-fns/fp';
 import auth from '~/middleware/auth';
 import '~/auth';
 import { mailer } from '~/mailer';
+import {
+  EmailVerificationConflictError,
+  UnauthorizedError,
+  RegistrationEmailConflictError,
+  InvalidCredentialsError,
+} from '~/errors';
 
 export default new Elysia()
   .post(
@@ -22,8 +28,10 @@ export default new Elysia()
         where: eq(accounts.email, body.email),
       });
       if (user) {
-        throw new Error('Email already registered');
+        throw new RegistrationEmailConflictError();
       }
+
+      // TODO throw if username exists
 
       const userId = createId();
       const passwordHash = await Bun.password.hash(body.password, {
@@ -57,10 +65,10 @@ export default new Elysia()
   .use(auth)
   .get('/verify-request', async ({ user, cookie }) => {
     if (!user) {
-      throw new Error('Must be logged in');
+      throw new UnauthorizedError();
     }
     if (user.verified) {
-      throw new Error('User already verified');
+      throw new EmailVerificationConflictError();
     }
     const code = createVerificationCode();
     await db.insert(emailAuth).values({
@@ -87,10 +95,10 @@ export default new Elysia()
     '/verify-submit',
     async ({ user, body: { code }, cookie }) => {
       if (!user) {
-        throw new Error('Must be logged in');
+        throw new UnauthorizedError();
       }
       if (user.verified) {
-        throw new Error('User already verified');
+        throw new EmailVerificationConflictError();
       }
       const verifyToken = await db.query.emailAuth.findFirst({
         where: and(
@@ -100,10 +108,13 @@ export default new Elysia()
         ),
       });
       if (!verifyToken) {
-        throw new Error('Invalid code');
+        throw new InvalidCredentialsError('Invalid verification code!');
       }
-      db.update(accounts).set({ verified: true });
-      db.delete(emailAuth).where(eq(emailAuth.id, verifyToken.id));
+      await db
+        .update(accounts)
+        .set({ verified: true })
+        .where(eq(emailAuth.id, user.id));
+      await db.delete(emailAuth).where(eq(emailAuth.id, verifyToken.id));
     },
     {
       body: verifySubmitBodySchema,

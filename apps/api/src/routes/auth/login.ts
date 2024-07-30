@@ -1,4 +1,4 @@
-import { Elysia } from 'elysia';
+import { Elysia, NotFoundError } from 'elysia';
 import { db } from '~/database/db';
 import { accounts, loginTokens, passwordAuth } from '~/database/schema';
 import { lucia } from '~/auth';
@@ -8,6 +8,7 @@ import { hashAlgo } from '~/consts';
 import { createId } from '@paralleldrive/cuid2';
 import { createToken } from '~/util';
 import { addMinutes } from 'date-fns/fp';
+import { InvalidCredentialsError, PasswordResetRequiredError } from '~/errors';
 
 export default new Elysia()
   .post(
@@ -17,14 +18,14 @@ export default new Elysia()
         where: eq(accounts.email, body.email),
       });
       if (!user) {
-        throw new Error("User doesn't exist");
+        throw new InvalidCredentialsError();
       }
 
       const password = await db.query.passwordAuth.findFirst({
         where: eq(passwordAuth.userId, user.id),
       });
       if (!password) {
-        throw new Error('User has no password set');
+        throw new PasswordResetRequiredError();
       }
 
       const validPassword = await Bun.password.verify(
@@ -33,7 +34,7 @@ export default new Elysia()
         hashAlgo.algorithm
       );
       if (!validPassword) {
-        throw new Error('Invalid password');
+        throw new InvalidCredentialsError();
       }
 
       const id = createId();
@@ -58,7 +59,7 @@ export default new Elysia()
         where: eq(loginTokens.id, body.id),
       });
       if (!loginToken) {
-        throw new Error('Invalid login token');
+        throw new InvalidCredentialsError('Invalid login token!');
       }
 
       const validToken = await Bun.password.verify(
@@ -66,7 +67,7 @@ export default new Elysia()
         loginToken.token
       );
       if (!validToken) {
-        throw new Error('Invalid login token');
+        throw new InvalidCredentialsError('Invalid login token!');
       }
 
       const session = await lucia.createSession(loginToken.userId, {});
