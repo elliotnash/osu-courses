@@ -43,7 +43,6 @@ export default function App() {
             <SolidQueryDevtools buttonPosition="bottom-left" />
             <ColorModeScript storageType={storageManager.type} />
             <ColorModeProvider storageManager={storageManager}>
-              <Navbar />
               <Suspense>{props.children}</Suspense>
             </ColorModeProvider>
           </QueryClientProvider>
