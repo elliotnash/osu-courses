@@ -1,15 +1,13 @@
-import { A } from '@solidjs/router';
 import { Suspense } from 'solid-js';
-import Navbar from '~/components/navbar';
+import ProtectedRoute from '~/components/auth/protected-route';
 
 export default function Home() {
   return (
-    <main>
-      <Navbar />
-      <div class="text-center mx-auto text-foreground/60 p-4">
+    <ProtectedRoute>
+      <main class="text-center mx-auto text-foreground/60 p-4">
         <Suspense>
           <h1 class="max-6-xs text-6xl text-sky-500 font-thin uppercase my-16">
-            OSU Courses API
+            OSU Courses Portal
           </h1>
           <p class="mt-8">
             Visit{' '}
@@ -22,15 +20,8 @@ export default function Home() {
             </a>{' '}
             to learn how to build Solid apps.
           </p>
-          <p class="my-4">
-            <span>Home</span>
-            {' - '}
-            <A href="/about" class="text-foreground hover:underline">
-              About Page
-            </A>{' '}
-          </p>
         </Suspense>
-      </div>
-    </main>
+      </main>
+    </ProtectedRoute>
   );
 }

@@ -2,6 +2,7 @@ import { treaty } from '@elysiajs/eden';
 import { isServer } from 'solid-js/web';
 import { App } from 'api';
 
+// Only load server functions in ssr context
 let getHeaders: any;
 let setResponseHeaders: any;
 if (isServer) {

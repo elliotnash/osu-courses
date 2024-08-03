@@ -1,5 +1,5 @@
 import { For } from 'solid-js';
-import { useLocation } from '@solidjs/router';
+import { A, useLocation } from '@solidjs/router';
 
 import { cn } from 'ui/lib/utils';
 import { RiLogosGithubLine } from 'solid-icons/ri';
@@ -30,18 +30,18 @@ export default function Navbar() {
     <header class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div class="container flex h-14 max-w-screen-2xl items-center">
         <div class="mr-4 flex">
-          <a href="/" class="mr-6 flex items-center space-x-2">
+          <A href="/" class="mr-6 flex items-center space-x-2">
             <span class="font-bold inline-block">OSU Courses API</span>
-          </a>
+          </A>
           <nav class="hidden sm:flex items-center gap-4 text-sm lg:gap-6">
             <For each={leftItems}>
               {(item) => (
-                <a
+                <A
                   href={item.path}
                   class={`${active(item.path)} transition-colors hover:text-foreground/80`}
                 >
                   {item.name}
-                </a>
+                </A>
               )}
             </For>
           </nav>
@@ -49,7 +49,7 @@ export default function Navbar() {
 
         <div class="flex flex-1 items-center space-x-2 justify-end">
           <div class="flex items-center">
-            <a
+            <A
               href="https://github.com/elliotnash/dbest-moon"
               target="_blank"
               rel="noreferrer"
@@ -66,7 +66,7 @@ export default function Navbar() {
                 <RiLogosGithubLine class="size-5" />
                 <span class="sr-only">GitHub</span>
               </div>
-            </a>
+            </A>
             <ModeToggle />
           </div>
         </div>
