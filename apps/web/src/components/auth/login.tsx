@@ -71,11 +71,7 @@ export function LoginComponent() {
         </div>
       </div>
       <Button variant="outline" type="button" disabled={authForm.submitting}>
-        {authForm.submitting ? (
-          <RiSystemLoaderLine class="mr-2 size-4 animate-spin" />
-        ) : (
-          <RiLogosGithubLine class="mr-2 size-4" />
-        )}{' '}
+        <RiLogosGithubLine class="mr-2 size-4" />
         Github
       </Button>
     </div>
