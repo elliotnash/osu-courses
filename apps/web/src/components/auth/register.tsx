@@ -1,4 +1,4 @@
-import type { SubmitHandler } from '@modular-forms/solid';
+import { SubmitHandler, valiForm } from '@modular-forms/solid';
 import { createForm } from '@modular-forms/solid';
 import { RiLogosGithubLine, RiSystemLoaderLine } from 'solid-icons/ri';
 import { Button } from 'ui/components/button';
@@ -7,11 +7,14 @@ import {
   TextField,
   TextFieldInput,
   TextFieldLabel,
+  TextFieldErrorMessage,
 } from 'ui/components/text-field';
-import type { RegisterInput } from './validations/register';
+import { RegisterInput, RegisterSchema } from './validations/register';
 
 export function RegisterComponent() {
-  const [authForm, { Form, Field }] = createForm<RegisterInput>();
+  const [authForm, { Form, Field }] = createForm<RegisterInput>({
+    validate: valiForm(RegisterSchema),
+  });
 
   const handleSubmit: SubmitHandler<RegisterInput> = () => {
     return new Promise((resolve) => setTimeout(resolve, 2000));
@@ -23,39 +26,58 @@ export function RegisterComponent() {
         <Grid class="gap-4">
           <Grid cols={2} class="gap-4">
             <Field name="firstName">
-              {(_, props) => (
-                <TextField>
+              {(field, props) => (
+                <TextField validationState={field.error ? 'invalid' : 'valid'}>
                   <TextFieldLabel>First Name</TextFieldLabel>
-                  <TextFieldInput {...props} type="text" placeholder="Jane" />
+                  <TextFieldInput
+                    {...props}
+                    type="text"
+                    placeholder="Jane"
+                    autocomplete="given-name"
+                  />
+                  <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
                 </TextField>
               )}
             </Field>
             <Field name="lastName">
-              {(_, props) => (
-                <TextField>
+              {(field, props) => (
+                <TextField validationState={field.error ? 'invalid' : 'valid'}>
                   <TextFieldLabel>Last Name</TextFieldLabel>
-                  <TextFieldInput {...props} type="text" placeholder="Doe" />
+                  <TextFieldInput
+                    {...props}
+                    type="text"
+                    placeholder="Doe"
+                    autocomplete="family-name"
+                  />
+                  <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
                 </TextField>
               )}
             </Field>
           </Grid>
           <Field name="email">
-            {(_, props) => (
-              <TextField>
+            {(field, props) => (
+              <TextField validationState={field.error ? 'invalid' : 'valid'}>
                 <TextFieldLabel>Email</TextFieldLabel>
                 <TextFieldInput
                   {...props}
                   type="email"
                   placeholder="email@oregonstate.edu"
+                  autocomplete="email"
                 />
+                <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
               </TextField>
             )}
           </Field>
           <Field name="password">
-            {(_, props) => (
-              <TextField>
+            {(field, props) => (
+              <TextField validationState={field.error ? 'invalid' : 'valid'}>
                 <TextFieldLabel>Password</TextFieldLabel>
-                <TextFieldInput {...props} type="password" />
+                <TextFieldInput
+                  {...props}
+                  type="password"
+                  autocomplete="new-password"
+                />
+                <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
               </TextField>
             )}
           </Field>

@@ -1,4 +1,4 @@
-import type { SubmitHandler } from '@modular-forms/solid';
+import { SubmitHandler, valiForm } from '@modular-forms/solid';
 import { createForm } from '@modular-forms/solid';
 import { RiLogosGithubLine, RiSystemLoaderLine } from 'solid-icons/ri';
 import { Button } from 'ui/components/button';
@@ -7,13 +7,17 @@ import {
   TextField,
   TextFieldInput,
   TextFieldLabel,
+  TextFieldErrorMessage,
 } from 'ui/components/text-field';
-import type { LoginInput } from './validations/login';
+import { LoginInput, LoginSchema } from './validations/login';
 
 export function LoginComponent() {
-  const [authForm, { Form, Field }] = createForm<LoginInput>();
+  const [authForm, { Form, Field }] = createForm<LoginInput>({
+    validate: valiForm(LoginSchema),
+  });
 
-  const handleSubmit: SubmitHandler<LoginInput> = () => {
+  const handleSubmit: SubmitHandler<LoginInput> = (values, event) => {
+    console.log(values);
     return new Promise((resolve) => setTimeout(resolve, 2000));
   };
 
@@ -22,22 +26,29 @@ export function LoginComponent() {
       <Form onSubmit={handleSubmit}>
         <Grid class="gap-4">
           <Field name="email">
-            {(_, props) => (
-              <TextField>
+            {(field, props) => (
+              <TextField validationState={field.error ? 'invalid' : 'valid'}>
                 <TextFieldLabel>Email</TextFieldLabel>
                 <TextFieldInput
                   {...props}
                   type="email"
                   placeholder="email@oregonstate.edu"
+                  autocomplete="email"
                 />
+                <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
               </TextField>
             )}
           </Field>
           <Field name="password">
-            {(_, props) => (
-              <TextField>
+            {(field, props) => (
+              <TextField validationState={field.error ? 'invalid' : 'valid'}>
                 <TextFieldLabel>Password</TextFieldLabel>
-                <TextFieldInput {...props} type="password" />
+                <TextFieldInput
+                  {...props}
+                  type="password"
+                  autocomplete="current-password"
+                />
+                <TextFieldErrorMessage>{field.error}</TextFieldErrorMessage>
               </TextField>
             )}
           </Field>

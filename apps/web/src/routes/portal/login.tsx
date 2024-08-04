@@ -1,4 +1,3 @@
-import { RegisterComponent } from '~/components/auth/register';
 import {
   Card,
   CardHeader,
