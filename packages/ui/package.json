@@ -2,6 +2,7 @@
   "name": "ui",
   "type": "module",
   "dependencies": {
+    "@corvu/otp-field": "^0.1.2",
     "@kobalte/core": "^0.13.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

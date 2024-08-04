@@ -1,5 +1,6 @@
 import { Suspense } from 'solid-js';
 import ProtectedRoute from '~/components/auth/protected-route';
+import { A } from '@solidjs/router';
 
 export default function Home() {
   return (
@@ -11,13 +12,13 @@ export default function Home() {
           </h1>
           <p class="mt-8">
             Visit{' '}
-            <a
+            <A
               href="https://solidjs.com"
               target="_blank"
               class="text-foreground hover:underline"
             >
               solidjs.com
-            </a>{' '}
+            </A>{' '}
             to learn how to build Solid apps.
           </p>
         </Suspense>

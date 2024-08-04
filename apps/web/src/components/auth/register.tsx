@@ -16,13 +16,13 @@ export function RegisterComponent() {
     validate: valiForm(RegisterSchema),
   });
 
-  const handleSubmit: SubmitHandler<RegisterInput> = () => {
+  const submitHandler: SubmitHandler<RegisterInput> = () => {
     return new Promise((resolve) => setTimeout(resolve, 2000));
   };
 
   return (
     <div class="grid gap-6">
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={submitHandler}>
         <Grid class="gap-4">
           <Grid cols={2} class="gap-4">
             <Field name="firstName">

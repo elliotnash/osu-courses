@@ -31,6 +31,9 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
+    --destructive-text: var(--destructive);
+    --destructive-text-foreground: var(--destructive-foreground);
+
     --info: 204 94% 94%;
     --info-foreground: 199 89% 48%;
 
@@ -76,6 +79,9 @@
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
+
+    --destructive-text: var(--destructive);
+    --destructive-text-foreground: var(--destructive-foreground);
 
     --info: 204 94% 94%;
     --info-foreground: 199 89% 48%;

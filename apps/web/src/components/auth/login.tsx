@@ -16,14 +16,14 @@ export function LoginComponent() {
     validate: valiForm(LoginSchema),
   });
 
-  const handleSubmit: SubmitHandler<LoginInput> = (values, event) => {
+  const submitHandler: SubmitHandler<LoginInput> = (values, event) => {
     console.log(values);
     return new Promise((resolve) => setTimeout(resolve, 2000));
   };
 
   return (
     <div class="grid gap-6">
-      <Form onSubmit={handleSubmit}>
+      <Form onSubmit={submitHandler}>
         <Grid class="gap-4">
           <Field name="email">
             {(field, props) => (

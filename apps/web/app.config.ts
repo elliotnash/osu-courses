@@ -10,6 +10,9 @@ const hmrPorts = {
 
 export default defineConfig({
   vite: ({ router }) => ({
+    ssr: {
+      noExternal: ['@corvu/otp-field'],
+    },
     plugins: [
       tsconfigPaths(),
       devtools({

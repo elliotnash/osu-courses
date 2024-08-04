@@ -6,6 +6,7 @@ import {
   CardContent,
 } from 'ui/components/card';
 import { LoginComponent } from '~/components/auth/login';
+import { A } from '@solidjs/router';
 
 export default function Login() {
   return (
@@ -22,12 +23,12 @@ export default function Login() {
             <LoginComponent />
             <p class="px-8 text-center text-sm text-foreground">
               Don't have an account?{' '}
-              <a
+              <A
                 href="/portal/register"
                 class="underline underline-offset-4 hover:text-muted-foreground"
               >
                 Sign up
-              </a>
+              </A>
             </p>
           </div>
         </CardContent>
