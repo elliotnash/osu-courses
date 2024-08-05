@@ -1,9 +1,4 @@
-import {
-  focus,
-  FormError,
-  SubmitHandler,
-  valiForm,
-} from '@modular-forms/solid';
+import { FormError, SubmitHandler, valiForm } from '@modular-forms/solid';
 import { createForm } from '@modular-forms/solid';
 import { RiLogosGithubLine, RiSystemLoaderLine } from 'solid-icons/ri';
 import { Button } from 'ui/components/button';

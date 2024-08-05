@@ -1,4 +1,9 @@
-import { FormError, SubmitHandler, valiForm } from '@modular-forms/solid';
+import {
+  FormError,
+  SubmitHandler,
+  valiForm,
+  focus,
+} from '@modular-forms/solid';
 import { createForm, submit } from '@modular-forms/solid';
 import { VerifyInput, VerifySchema } from './validations/verify';
 import {
@@ -115,6 +120,10 @@ export function VerifyComponent() {
             code: error.value.message,
           });
       }
+    } else {
+      // redirect to portal
+      console.log('no error, redirecting');
+      throw navigate('/portal');
     }
   };
 

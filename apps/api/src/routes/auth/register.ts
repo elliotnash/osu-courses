@@ -195,7 +195,7 @@ export default new Elysia()
       await db
         .update(accounts)
         .set({ verified: true })
-        .where(eq(emailAuth.id, user.id));
+        .where(eq(accounts.id, user.id));
       await db.delete(emailAuth).where(eq(emailAuth.id, verifyToken.id));
     },
     {
