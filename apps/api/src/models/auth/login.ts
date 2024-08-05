@@ -8,11 +8,10 @@ import {
 export const initiateLoginBodySchema = t.Composite([
   t.Omit(accountSelectSchema, [
     'id',
-    'emailVerified',
+    'verified',
     'registrationDate',
     'lastUpdateDate',
     'lastLoginDate',
-    'username',
     'firstName',
     'lastName',
     'phoneNumber',

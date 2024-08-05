@@ -1,5 +1,5 @@
-import { SubmitHandler, valiForm } from '@modular-forms/solid';
-import { createForm } from '@modular-forms/solid';
+import { FormError, SubmitHandler, valiForm } from '@modular-forms/solid';
+import { createForm, focus } from '@modular-forms/solid';
 import { RiLogosGithubLine, RiSystemLoaderLine } from 'solid-icons/ri';
 import { Button } from 'ui/components/button';
 import { Grid } from 'ui/components/grid';
@@ -10,15 +10,27 @@ import {
   TextFieldErrorMessage,
 } from 'ui/components/text-field';
 import { LoginInput, LoginSchema } from './validations/login';
+import api from '~/api';
+import { InvalidCredentialsError } from 'api/src/errors';
+import { Show } from 'solid-js';
 
 export function LoginComponent() {
   const [authForm, { Form, Field }] = createForm<LoginInput>({
     validate: valiForm(LoginSchema),
   });
 
-  const submitHandler: SubmitHandler<LoginInput> = (values, event) => {
-    console.log(values);
-    return new Promise((resolve) => setTimeout(resolve, 2000));
+  const submitHandler: SubmitHandler<LoginInput> = async (values, event) => {
+    const { data: login, error } =
+      await api.auth['initiate-login'].post(values);
+    if (!login) {
+      switch (error.value.code) {
+        case InvalidCredentialsError.code:
+          focus(authForm, 'password');
+          throw new FormError<LoginInput>(error.value.message);
+        default:
+          throw new FormError<LoginInput>('Server error.');
+      }
+    }
   };
 
   return (
@@ -52,6 +64,11 @@ export function LoginComponent() {
               </TextField>
             )}
           </Field>
+          <Show when={authForm.response.message}>
+            <span class="text-sm text-destructive">
+              {authForm.response.message}
+            </span>
+          </Show>
           <Button type="submit" disabled={authForm.submitting}>
             {authForm.submitting && (
               <RiSystemLoaderLine class="mr-2 size-4 animate-spin" />

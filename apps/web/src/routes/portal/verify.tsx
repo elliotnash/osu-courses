@@ -7,8 +7,9 @@ import {
 } from 'ui/components/card';
 import { VerifyComponent } from 'src/components/auth/verify';
 
-export default function Login() {
+export default function Verify() {
   return (
+    // <ProtectedRoute>
     <div class="flex h-screen">
       <Card class="m-auto max-w-sm align-bottom">
         <CardHeader>
@@ -22,5 +23,6 @@ export default function Login() {
         </CardContent>
       </Card>
     </div>
+    // </ProtectedRoute>
   );
 }

@@ -9,7 +9,6 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-typebox';
 import { t } from 'elysia';
 import { usPhoneRegex } from '~/consts';
 import { createId } from '@paralleldrive/cuid2';
-import { createToken } from '~/util';
 
 export const accounts = pgTable('accounts', {
   id: text('id')
@@ -17,7 +16,6 @@ export const accounts = pgTable('accounts', {
     .primaryKey(),
   email: text('email').unique().notNull(),
   verified: boolean('verified').default(false).notNull(),
-  username: text('username').unique().notNull(),
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   phoneNumber: text('phone_number'),
@@ -52,8 +50,8 @@ export const loginTokens = pgTable('login_tokens', {
     .references(() => accounts.id)
     .notNull(),
   token: text('token').notNull(),
-  created: timestamp('created').defaultNow().notNull(),
-  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
 });
 export const loginTokensInsertSchema = createInsertSchema(loginTokens);
 export const loginTokensSelectSchema = createSelectSchema(loginTokens);
@@ -63,8 +61,8 @@ export const sessions = pgTable('sessions', {
   userId: text('user_id')
     .references(() => accounts.id)
     .notNull(),
-  created: timestamp('created').defaultNow().notNull(),
-  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
 });
 export const sessionInsertSchema = createInsertSchema(sessions);
 export const sessionSelectSchema = createSelectSchema(sessions);
@@ -101,7 +99,8 @@ export const emailAuth = pgTable('email_auth', {
     .references(() => accounts.id)
     .notNull(),
   code: varchar('code', { length: 6 }),
-  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  expiresAt: timestamp('expires_at').notNull(),
 });
 export const emailAuthInsertSchema = createInsertSchema(emailAuth);
 export const emailAuthSelectSchema = createSelectSchema(emailAuth);

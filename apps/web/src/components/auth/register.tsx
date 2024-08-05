@@ -1,4 +1,9 @@
-import { SubmitHandler, valiForm } from '@modular-forms/solid';
+import {
+  focus,
+  FormError,
+  SubmitHandler,
+  valiForm,
+} from '@modular-forms/solid';
 import { createForm } from '@modular-forms/solid';
 import { RiLogosGithubLine, RiSystemLoaderLine } from 'solid-icons/ri';
 import { Button } from 'ui/components/button';
@@ -10,14 +15,33 @@ import {
   TextFieldErrorMessage,
 } from 'ui/components/text-field';
 import { RegisterInput, RegisterSchema } from './validations/register';
+import api from 'src/api';
+import { RegistrationEmailConflictError } from 'api/src/errors';
+import { LoginInput } from 'src/components/auth/validations/login';
+import { Show } from 'solid-js';
+import { useNavigate } from '@solidjs/router';
 
 export function RegisterComponent() {
+  const navigate = useNavigate();
+
   const [authForm, { Form, Field }] = createForm<RegisterInput>({
     validate: valiForm(RegisterSchema),
   });
 
-  const submitHandler: SubmitHandler<RegisterInput> = () => {
-    return new Promise((resolve) => setTimeout(resolve, 2000));
+  const submitHandler: SubmitHandler<RegisterInput> = async (values) => {
+    const { error } = await api.auth.register.post(values);
+    if (error) {
+      switch (error.value.code) {
+        case RegistrationEmailConflictError.code:
+          throw new FormError<LoginInput>({
+            email: error.value.message,
+          });
+        default:
+          throw new FormError<LoginInput>('Server error.');
+      }
+    }
+    // If registration successful redirect to email verification page.
+    throw navigate('/portal/verify');
   };
 
   return (
@@ -81,6 +105,11 @@ export function RegisterComponent() {
               </TextField>
             )}
           </Field>
+          <Show when={authForm.response.message}>
+            <span class="text-sm text-destructive">
+              {authForm.response.message}
+            </span>
+          </Show>
           <Button type="submit" disabled={authForm.submitting}>
             {authForm.submitting && (
               <RiSystemLoaderLine class="mr-2 size-4 animate-spin" />

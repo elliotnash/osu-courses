@@ -19,3 +19,7 @@ export const hashAlgo = {
 };
 
 export const verificationCodeLength = 6;
+
+export const verificationRequestTimeoutSeconds = 90;
+export const verificationCodeExpirationMinutes = 60;
+export const verificationCodeRenewMinutes = 55;

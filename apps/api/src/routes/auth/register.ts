@@ -1,4 +1,4 @@
-import { Elysia } from 'elysia';
+import { Elysia, t, error } from 'elysia';
 import {
   registerBodySchema,
   verifySubmitBodySchema,
@@ -7,9 +7,15 @@ import { createId } from '@paralleldrive/cuid2';
 import { db } from '~/database/db';
 import { accounts, emailAuth, passwordAuth, sessions } from '~/database/schema';
 import { lucia } from '~/auth';
-import { eq, and, gt } from 'drizzle-orm';
+import { eq, and, gt, max } from 'drizzle-orm';
 import { createVerificationCode } from '~/util';
-import { addHours } from 'date-fns/fp';
+import {
+  addHours,
+  addMinutes,
+  addSeconds,
+  subMinutes,
+  subSeconds,
+} from 'date-fns/fp';
 import auth from '~/middleware/auth';
 import '~/auth';
 import { mailer } from '~/mailer';
@@ -18,7 +24,14 @@ import {
   UnauthorizedError,
   RegistrationEmailConflictError,
   InvalidCredentialsError,
+  VerificationRequestTimeoutError,
+  VerificationRequestExistsError,
 } from '~/errors';
+import {
+  verificationCodeExpirationMinutes,
+  verificationCodeRenewMinutes,
+  verificationRequestTimeoutSeconds,
+} from '~/consts';
 
 export default new Elysia()
   .post(
@@ -28,10 +41,11 @@ export default new Elysia()
         where: eq(accounts.email, body.email),
       });
       if (user) {
-        throw new RegistrationEmailConflictError();
+        return error(
+          RegistrationEmailConflictError.status,
+          RegistrationEmailConflictError
+        );
       }
-
-      // TODO throw if username exists
 
       const userId = createId();
       const passwordHash = await Bun.password.hash(body.password, {
@@ -63,52 +77,120 @@ export default new Elysia()
     }
   )
   .use(auth)
-  .get('/verify-request', async ({ user, cookie }) => {
-    if (!user) {
-      throw new UnauthorizedError();
+  .get(
+    '/verify-request',
+    async ({ user, query: { resend } }) => {
+      console.log(`requesting with resend: ${resend}`);
+      if (!user) {
+        return error(UnauthorizedError.status, UnauthorizedError);
+      }
+      if (user.verified) {
+        return error(
+          EmailVerificationConflictError.status,
+          EmailVerificationConflictError
+        );
+      }
+
+      // Limit requests to once a minute
+      const [{ createdAt: lastDate }] = await db
+        .select({ createdAt: max(emailAuth.createdAt) })
+        .from(emailAuth)
+        .where(
+          and(
+            eq(emailAuth.userId, user.id),
+            gt(
+              emailAuth.createdAt,
+              subSeconds(verificationRequestTimeoutSeconds, new Date())
+            )
+          )
+        );
+      if (lastDate) {
+        return error(VerificationRequestTimeoutError.status, {
+          ...VerificationRequestTimeoutError,
+          nextRequest: addSeconds(verificationRequestTimeoutSeconds, lastDate),
+        });
+      }
+
+      // If an email already exists, only resend if within 5 min of expiration.
+      // If resend is passed, always resend
+      if (!resend) {
+        const [{ expiresAt: lastDate }] = await db
+          .select({
+            expiresAt: max(emailAuth.expiresAt),
+          })
+          .from(emailAuth)
+          .where(
+            and(
+              eq(emailAuth.userId, user.id),
+              gt(
+                emailAuth.expiresAt,
+                addMinutes(verificationCodeRenewMinutes, new Date())
+              )
+            )
+          );
+        if (lastDate) {
+          return error(
+            VerificationRequestExistsError.status,
+            VerificationRequestExistsError
+          );
+        }
+      }
+
+      const code = createVerificationCode();
+      await db.insert(emailAuth).values({
+        userId: user.id,
+        code,
+        expiresAt: addMinutes(verificationCodeExpirationMinutes, new Date()),
+      });
+      await mailer.sendMail({
+        to: user.email,
+        subject: `Your verification code is ${code}`,
+        templateName: 'otp',
+        templateData: {
+          title: 'Welcome to OSU Courses API',
+          message:
+            'Please verify your email with the code below to complete account setup.',
+          warning:
+            "If you didn't request this code, you can safely ignore this email.",
+          codeGroup1: code.substring(0, 3),
+          codeGroup2: code.substring(3),
+        },
+      });
+
+      return {
+        nextRequest: addMinutes(1, new Date()),
+      };
+    },
+    {
+      query: t.Object({
+        resend: t.BooleanString({ default: false }),
+      }),
     }
-    if (user.verified) {
-      throw new EmailVerificationConflictError();
-    }
-    const code = createVerificationCode();
-    await db.insert(emailAuth).values({
-      userId: user.id,
-      code,
-      expiresAt: addHours(1, new Date()),
-    });
-    await mailer.sendMail({
-      to: user.email,
-      subject: `Your verification code is ${code}`,
-      templateName: 'otp',
-      templateData: {
-        title: 'Welcome to OSU Courses API',
-        message:
-          'Please verify your email with the code below to complete account setup.',
-        warning:
-          "If you didn't request this code, you can safely ignore this email.",
-        codeGroup1: code.substring(0, 3),
-        codeGroup2: code.substring(3),
-      },
-    });
-  })
+  )
   .post(
     '/verify-submit',
     async ({ user, body: { code }, cookie }) => {
       if (!user) {
-        throw new UnauthorizedError();
+        return error(UnauthorizedError.status, UnauthorizedError);
       }
       if (user.verified) {
-        throw new EmailVerificationConflictError();
+        return error(
+          EmailVerificationConflictError.status,
+          EmailVerificationConflictError
+        );
       }
       const verifyToken = await db.query.emailAuth.findFirst({
         where: and(
           eq(emailAuth.userId, user.id),
           eq(emailAuth.code, code),
-          gt(sessions.expiresAt, new Date())
+          gt(emailAuth.expiresAt, new Date())
         ),
       });
       if (!verifyToken) {
-        throw new InvalidCredentialsError('Invalid verification code!');
+        return error(InvalidCredentialsError.status, {
+          ...InvalidCredentialsError,
+          message: 'Invalid verification code.',
+        });
       }
       await db
         .update(accounts)

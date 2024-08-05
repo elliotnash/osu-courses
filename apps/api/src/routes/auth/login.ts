@@ -1,4 +1,4 @@
-import { Elysia, NotFoundError } from 'elysia';
+import { Elysia, error, NotFoundError } from 'elysia';
 import { db } from '~/database/db';
 import { accounts, loginTokens, passwordAuth } from '~/database/schema';
 import { lucia } from '~/auth';
@@ -18,14 +18,20 @@ export default new Elysia()
         where: eq(accounts.email, body.email),
       });
       if (!user) {
-        throw new InvalidCredentialsError();
+        return error(InvalidCredentialsError.status, {
+          ...InvalidCredentialsError,
+          message: 'Invalid email or password!',
+        });
       }
 
       const password = await db.query.passwordAuth.findFirst({
         where: eq(passwordAuth.userId, user.id),
       });
       if (!password) {
-        throw new PasswordResetRequiredError();
+        return error(
+          PasswordResetRequiredError.status,
+          PasswordResetRequiredError
+        );
       }
 
       const validPassword = await Bun.password.verify(
@@ -34,7 +40,7 @@ export default new Elysia()
         hashAlgo.algorithm
       );
       if (!validPassword) {
-        throw new InvalidCredentialsError();
+        return error(InvalidCredentialsError.status, InvalidCredentialsError);
       }
 
       const id = createId();
@@ -59,7 +65,10 @@ export default new Elysia()
         where: eq(loginTokens.id, body.id),
       });
       if (!loginToken) {
-        throw new InvalidCredentialsError('Invalid login token!');
+        return error(InvalidCredentialsError.status, {
+          ...InvalidCredentialsError,
+          message: 'Invalid login token!',
+        });
       }
 
       const validToken = await Bun.password.verify(
@@ -67,7 +76,10 @@ export default new Elysia()
         loginToken.token
       );
       if (!validToken) {
-        throw new InvalidCredentialsError('Invalid login token!');
+        return error(InvalidCredentialsError.status, {
+          ...InvalidCredentialsError,
+          message: 'Invalid login token!',
+        });
       }
 
       const session = await lucia.createSession(loginToken.userId, {});

@@ -1,6 +1,5 @@
-import { Elysia, t } from 'elysia';
+import { Elysia } from 'elysia';
 import { cors } from '@elysiajs/cors';
-import { createId } from '@paralleldrive/cuid2';
 import swagger from '@elysiajs/swagger';
 import { ThemeId } from '@elysiajs/swagger/scalar/types';
 
@@ -8,6 +7,10 @@ import env from './env';
 import routes from './routes/plugin';
 
 const app = new Elysia()
+  .onError((event) => {
+    console.log(event.error);
+    return JSON.stringify(event.error);
+  })
   .use(
     swagger({
       path: 'docs',
