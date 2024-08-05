@@ -158,7 +158,7 @@ export default new Elysia()
       });
 
       return {
-        nextRequest: addMinutes(1, new Date()),
+        nextRequest: addSeconds(verificationRequestTimeoutSeconds, new Date()),
       };
     },
     {

@@ -36,7 +36,9 @@ export function RegisterComponent() {
       }
     }
     // If registration successful redirect to email verification page.
-    throw navigate('/portal/verify');
+    navigate('/portal/verify');
+    // Return promise that never resolves; ensures loading animation remains.
+    return new Promise(() => {});
   };
 
   return (

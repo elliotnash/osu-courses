@@ -121,9 +121,11 @@ export function VerifyComponent() {
           });
       }
     } else {
-      // redirect to portal
+      // Email verified, navigate to portal.
       console.log('no error, redirecting');
-      throw navigate('/portal');
+      navigate('/portal');
+      // Return promise that never resolves; ensures otp disabled.
+      return new Promise(() => {});
     }
   };
 
