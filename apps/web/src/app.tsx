@@ -8,7 +8,6 @@ import {
   cookieStorageManagerSSR,
 } from '@kobalte/core';
 import { getCookie } from 'vinxi/http';
-import Navbar from '~/components/navbar';
 import { QueryClientProvider, QueryClient } from '@tanstack/solid-query';
 import { SolidQueryDevtools } from '@tanstack/solid-query-devtools';
 import 'solid-devtools';
