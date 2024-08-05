@@ -1,12 +1,20 @@
 import { treaty } from '@elysiajs/eden';
 import { isServer } from 'solid-js/web';
 import { App } from 'api';
+import { getHeaders, setResponseHeaders } from 'vinxi/http';
 
-// Only load server functions in ssr context
-let getHeaders: any;
-let setResponseHeaders: any;
-if (isServer) {
-  ({ getHeaders, setResponseHeaders } = await import('vinxi/http'));
+function getServerHeaders() {
+  'use server';
+  return new Headers(
+    Object.entries(getHeaders()).map(([k, v]) => [k, v ?? ''] as const)
+  );
+}
+
+function setServerHeaders(headers: Headers) {
+  'use server';
+  setResponseHeaders(
+    Object.fromEntries(headers.entries()) as Record<string, string>
+  );
 }
 
 export default treaty<App>('http://localhost:8080', {
@@ -16,13 +24,13 @@ export default treaty<App>('http://localhost:8080', {
   headers(path, options) {
     // If ssr context, copy over client headers.
     if (isServer) {
-      return getHeaders();
+      return getServerHeaders();
     }
   },
   onResponse(response) {
     // If ssr context, set headers on client.
     if (isServer) {
-      setResponseHeaders(response.headers);
+      setServerHeaders(response.headers);
     }
   },
 });
