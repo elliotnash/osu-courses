@@ -9,12 +9,18 @@ import {
   OTPFieldSlot,
 } from 'ui/components/otp-field';
 import { useNavigate } from '@solidjs/router';
-import { createMemo, createSignal, onCleanup, Show } from 'solid-js';
+import {
+  Component,
+  createMemo,
+  createSignal,
+  onCleanup,
+  ParentComponent,
+  Show,
+} from 'solid-js';
 import { createQuery } from '@tanstack/solid-query';
 import api from '~/api';
 import {
   EmailVerificationConflictError,
-  InvalidCredentialsError,
   UnauthorizedError,
   VerificationRequestExistsError,
   VerificationRequestTimeoutError,
@@ -22,7 +28,7 @@ import {
 import { differenceInSeconds } from 'date-fns/fp';
 import { verificationRequestTimeoutSeconds } from 'api/src/consts';
 
-export function VerifyComponent() {
+export function EmailResendCounter() {
   const navigate = useNavigate();
 
   // Sends a verification email if allowed, otherwise gets time until allowed.
@@ -97,36 +103,53 @@ export function VerifyComponent() {
     })}`;
   });
 
-  // OTP Form
+  return (
+    <>
+      {/*Query errors*/}
+      <Show when={!verifyQuery.data?.handled && verifyQuery.data}>
+        {(data) => (
+          <span class="mt-2 text-sm text-destructive">{data().message}</span>
+        )}
+      </Show>
+      {/*Resend countdown*/}
+      <Show
+        when={canResend()}
+        fallback={
+          <p class="px-8 text-center text-sm text-muted-foreground">
+            Send another email in {timeString()}.
+          </p>
+        }
+      >
+        <p class="px-8 text-center text-sm text-foreground">
+          Didn't receive an email?{' '}
+          <span
+            class="underline underline-offset-4 hover:text-muted-foreground cursor-pointer"
+            onClick={() => {
+              resend = true;
+              verifyQuery.refetch();
+              setTimeSeconds(verificationRequestTimeoutSeconds);
+            }}
+          >
+            Send another
+          </span>
+        </p>
+      </Show>
+    </>
+  );
+}
+
+export const VerifyComponent: ParentComponent<{
+  onSubmit: SubmitHandler<VerifyInput>;
+}> = (props) => {
+  const navigate = useNavigate();
+
   const [verifyForm, { Form, Field }] = createForm<VerifyInput>({
     validate: valiForm(VerifySchema),
   });
 
-  // Form submission
-  const submitHandler: SubmitHandler<VerifyInput> = async (values, _) => {
-    const { error } = await api.auth['verify-submit'].post(values);
-    if (error) {
-      switch (error.value.code) {
-        case UnauthorizedError.code:
-          // User not logged in
-          throw navigate('/portal/login');
-        case InvalidCredentialsError.code:
-          throw new FormError<VerifyInput>({
-            code: error.value.message,
-          });
-      }
-    } else {
-      // Email verified, navigate to portal.
-      console.log('no error, redirecting');
-      navigate('/portal');
-      // Return promise that never resolves; ensures otp disabled.
-      return new Promise(() => {});
-    }
-  };
-
   return (
     <div class="mx-auto flex w-full flex-col justify-center space-y-6 max-w-[350px]">
-      <Form onSubmit={submitHandler}>
+      <Form onSubmit={(...args) => props.onSubmit(...args)}>
         <Field name="code">
           {(field, props) => (
             <div class="flex flex-col items-center">
@@ -162,40 +185,11 @@ export function VerifyComponent() {
               <Show when={field.error}>
                 <span class="mt-2 text-sm text-destructive">{field.error}</span>
               </Show>
-              {/*Query errors*/}
-              <Show when={!verifyQuery.data?.handled && verifyQuery.data}>
-                {(data) => (
-                  <span class="mt-2 text-sm text-destructive">
-                    {data().message}
-                  </span>
-                )}
-              </Show>
             </div>
           )}
         </Field>
       </Form>
-      <Show
-        when={canResend()}
-        fallback={
-          <p class="px-8 text-center text-sm text-muted-foreground">
-            Send another email in {timeString()}.
-          </p>
-        }
-      >
-        <p class="px-8 text-center text-sm text-foreground">
-          Didn't receive an email?{' '}
-          <span
-            class="underline underline-offset-4 hover:text-muted-foreground cursor-pointer"
-            onClick={() => {
-              resend = true;
-              verifyQuery.refetch();
-              setTimeSeconds(verificationRequestTimeoutSeconds);
-            }}
-          >
-            Send another
-          </span>
-        </p>
-      </Show>
+      {props.children}
     </div>
   );
-}
+};
