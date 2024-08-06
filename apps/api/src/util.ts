@@ -1,5 +1,5 @@
 import { TSchema } from 'elysia';
-import { StaticDecode } from '@sinclair/typebox';
+import { StaticDecode, TLiteral, TUnion } from '@sinclair/typebox';
 import { Value } from '@sinclair/typebox/value';
 import { TypeCompiler, TypeCheck } from '@sinclair/typebox/compiler';
 import { randomInt, randomBytes } from 'node:crypto';
@@ -37,4 +37,17 @@ export function createVerificationCode() {
 
 export function createToken() {
   return randomBytes(48).toString('base64');
+}
+
+type IntoLiteralEnum<T> = {
+  [K in keyof T]: T[K] extends string ? TLiteral<T[K]> : never;
+};
+
+export function LiteralEnum<T extends string[]>(
+  values: [...T]
+): TUnion<IntoLiteralEnum<T>> {
+  return {
+    enum: [...values],
+    type: 'string',
+  } as any;
 }

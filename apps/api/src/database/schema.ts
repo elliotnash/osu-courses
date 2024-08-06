@@ -19,6 +19,7 @@ export const accounts = pgTable('accounts', {
   firstName: text('first_name').notNull(),
   lastName: text('last_name').notNull(),
   phoneNumber: text('phone_number'),
+  // Registration metadata
   registrationDate: timestamp('registration_date', {
     withTimezone: true,
   })
@@ -41,6 +42,17 @@ const accountsRefine = {
 };
 export const accountInsertSchema = createInsertSchema(accounts, accountsRefine);
 export const accountSelectSchema = createSelectSchema(accounts, accountsRefine);
+
+export const supportedMfas = pgTable('supported_mfas', {
+  userId: text('user_id')
+    .primaryKey()
+    .references(() => accounts.id)
+    .notNull(),
+  emailMfa: boolean('email_mfa').default(false).notNull(),
+  totpMfa: boolean('totp_mfa').default(false).notNull(),
+});
+export const supportedMfasInsertSchema = createInsertSchema(supportedMfas);
+export const supportedMfasSelectSchema = createSelectSchema(supportedMfas);
 
 export const loginTokens = pgTable('login_tokens', {
   id: text('id')

@@ -1,6 +1,13 @@
-import { Elysia, error, NotFoundError } from 'elysia';
+import { Elysia, error } from 'elysia';
 import { db } from '~/database/db';
-import { accounts, loginTokens, passwordAuth } from '~/database/schema';
+import {
+  accounts,
+  loginTokens,
+  passwordAuth,
+  supportedMfas,
+  supportedMfasInsertSchema,
+  supportedMfasSelectSchema,
+} from '~/database/schema';
 import { lucia } from '~/auth';
 import { initiateLoginBodySchema, loginBodySchema } from '~/models/auth/login';
 import { eq } from 'drizzle-orm';
@@ -43,6 +50,17 @@ export default new Elysia()
         return error(InvalidCredentialsError.status, InvalidCredentialsError);
       }
 
+      const mfas = (await db.query.supportedMfas.findFirst({
+        columns: {
+          emailMfa: true,
+          totpMfa: true,
+        },
+        where: eq(supportedMfas.userId, user.id),
+      })) ?? {
+        emailMfa: false,
+        totpMfa: false,
+      };
+
       const id = createId();
       const token = createToken();
       await db.insert(loginTokens).values({
@@ -51,7 +69,7 @@ export default new Elysia()
         token: await Bun.password.hash(token, hashAlgo),
         expiresAt: addMinutes(15, new Date()),
       });
-      return { id, token };
+      return { id, token, supportedMfas: mfas };
     },
     {
       body: initiateLoginBodySchema,
