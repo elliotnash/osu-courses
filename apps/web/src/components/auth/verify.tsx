@@ -1,4 +1,4 @@
-import { FormError, SubmitHandler, valiForm } from '@modular-forms/solid';
+import { SubmitHandler, valiForm } from '@modular-forms/solid';
 import { createForm, submit } from '@modular-forms/solid';
 import { VerifyInput, VerifySchema } from './validations/verify';
 import {
@@ -10,7 +10,6 @@ import {
 } from 'ui/components/otp-field';
 import { useNavigate } from '@solidjs/router';
 import {
-  Component,
   createMemo,
   createSignal,
   onCleanup,

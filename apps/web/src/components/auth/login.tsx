@@ -12,14 +12,17 @@ import {
 import { LoginInput, LoginSchema } from './validations/login';
 import api from '~/api';
 import { InvalidCredentialsError } from 'api/src/errors';
-import { Show } from 'solid-js';
+import { Component, Show } from 'solid-js';
+import { InitiateLogin } from 'api/src/models/auth/login';
 
-export function LoginComponent() {
+export const LoginComponent: Component<{
+  onInitiate: (login: InitiateLogin) => Promise<void>;
+}> = (props) => {
   const [authForm, { Form, Field }] = createForm<LoginInput>({
     validate: valiForm(LoginSchema),
   });
 
-  const submitHandler: SubmitHandler<LoginInput> = async (values, event) => {
+  const submitHandler: SubmitHandler<LoginInput> = async (values, _) => {
     const { data: login, error } =
       await api.auth['initiate-login'].post(values);
     if (!login) {
@@ -31,6 +34,7 @@ export function LoginComponent() {
           throw new FormError<LoginInput>('Server error.');
       }
     }
+    await props.onInitiate(login);
   };
 
   return (
@@ -93,4 +97,4 @@ export function LoginComponent() {
       </Button>
     </div>
   );
-}
+};

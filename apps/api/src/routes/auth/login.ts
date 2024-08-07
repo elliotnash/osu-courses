@@ -69,7 +69,13 @@ export default new Elysia()
         token: await Bun.password.hash(token, hashAlgo),
         expiresAt: addMinutes(15, new Date()),
       });
-      return { id, token, supportedMfas: mfas };
+      return {
+        id,
+        token,
+        supportedMfas: Object.entries(mfas)
+          .filter(([_, val]) => val)
+          .map(([k]) => k as keyof typeof mfas),
+      };
     },
     {
       body: initiateLoginBodySchema,
