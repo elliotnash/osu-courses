@@ -34,10 +34,7 @@ export const LoginComponent: Component<{
           throw new FormError<LoginInput>('Server error.');
       }
     }
-    await props.onInitiate(
-      { ...login, supportedMfas: ['emailMfa', 'totpMfa'] },
-      values.email
-    );
+    await props.onInitiate(login, values.email);
   };
 
   return (
