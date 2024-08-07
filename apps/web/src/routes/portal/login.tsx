@@ -10,7 +10,10 @@ import { A, useNavigate } from '@solidjs/router';
 import {
   Component,
   createSignal,
+  For,
   Match,
+  onCleanup,
+  onMount,
   ParentComponent,
   Switch,
 } from 'solid-js';
@@ -18,15 +21,39 @@ import { InitiateLogin } from 'api/src/models/auth/login';
 import { Grid } from 'ui/components/grid';
 import { SupportedMfas } from 'api/src/models/auth/login';
 import api from '~/api';
+import { isServer } from 'solid-js/web';
+import { VerifyComponent } from '~/components/auth/verify';
 
 export default function Login() {
   const navigate = useNavigate();
 
   const [login, setLogin] = createSignal<InitiateLogin>();
+  const [email, setEmail] = createSignal<string>();
   const [mfaMethod, setMfaMethod] = createSignal<SupportedMfas>();
 
-  async function onInitiate(login: InitiateLogin) {
+  const popstateListener: EventListener = (event) => {
+    // Navigate back
+    if (mfaMethod()) {
+      setMfaMethod(undefined);
+    } else if (login()) {
+      setLogin(undefined);
+      setEmail(undefined);
+    }
+  };
+  onMount(() => {
+    if (!isServer) {
+      addEventListener('popstate', popstateListener);
+    }
+  });
+  onCleanup(() => {
+    if (!isServer) {
+      removeEventListener('popstate', popstateListener);
+    }
+  });
+
+  async function onInitiate(login: InitiateLogin, email: string) {
     setLogin(login);
+    setEmail(email);
     // If any mfa enabled then login complete
     if (login.supportedMfas.length == 0) {
       await completeLogin();
@@ -46,10 +73,25 @@ export default function Login() {
     <div class="flex h-screen">
       <Card class="m-auto max-w-sm align-bottom">
         <Switch fallback={<LoginStep onInitiate={onInitiate} />}>
-          <Match when={mfaMethod() == 'emailMfa'}>email mfa</Match>
-          <Match when={mfaMethod() == 'totpMfa'}>totp mfa</Match>
-          <Match when={(login()?.supportedMfas?.length ?? 0) != 0}>
-            <ChooseMfaStep />
+          <Match when={mfaMethod() == 'emailMfa'}>
+            <EmailMfa email={email()!} />
+          </Match>
+          <Match when={mfaMethod() == 'totpMfa'}>
+            <TotpMfa />
+          </Match>
+          <Match
+            when={
+              (login()?.supportedMfas?.length ?? 0) != 0 &&
+              login()?.supportedMfas
+            }
+          >
+            {(mfas) => (
+              <ChooseMfaStep
+                onSelect={setMfaMethod}
+                supportedMfas={mfas()}
+                email={email()!}
+              />
+            )}
           </Match>
         </Switch>
       </Card>
@@ -58,7 +100,7 @@ export default function Login() {
 }
 
 const LoginStep: Component<{
-  onInitiate: (login: InitiateLogin) => Promise<void>;
+  onInitiate: (login: InitiateLogin, email: string) => Promise<void>;
 }> = (props) => {
   return (
     <>
@@ -86,7 +128,15 @@ const LoginStep: Component<{
   );
 };
 
-const ChooseMfaStep: Component = (props) => {
+const ChooseMfaStep: Component<{
+  supportedMfas: SupportedMfas[];
+  email: string;
+  onSelect: (mfa: SupportedMfas) => void;
+}> = (props) => {
+  onMount(() => {
+    history.pushState({ step: 'choose_method' }, '');
+  });
+
   return (
     <>
       <CardHeader>
@@ -97,12 +147,28 @@ const ChooseMfaStep: Component = (props) => {
       </CardHeader>
       <CardContent>
         <MfaOptionSection>
-          <MfaOption title={'Email'}>
-            Send a code to nashell@oregonstate.edu
-          </MfaOption>
-          <MfaOption title={'Verification Code'}>
-            Get a code from your authenticator app
-          </MfaOption>
+          <For each={props.supportedMfas}>
+            {(mfa) => (
+              <Switch>
+                <Match when={mfa == 'emailMfa'}>
+                  <MfaOption
+                    onClick={() => props.onSelect(mfa)}
+                    title={'Email'}
+                  >
+                    Send a code to {props.email}
+                  </MfaOption>
+                </Match>
+                <Match when={mfa == 'totpMfa'}>
+                  <MfaOption
+                    onClick={() => props.onSelect(mfa)}
+                    title={'Verification Code'}
+                  >
+                    Get a code from your authenticator app
+                  </MfaOption>
+                </Match>
+              </Switch>
+            )}
+          </For>
         </MfaOptionSection>
       </CardContent>
     </>
@@ -113,12 +179,59 @@ const MfaOptionSection: ParentComponent = (props) => {
   return <Grid class="gap-2">{props.children}</Grid>;
 };
 
-const MfaOption: ParentComponent<{ title: string }> = (props) => {
+const MfaOption: ParentComponent<{ title: string; onClick: () => void }> = (
+  props
+) => {
   return (
-    <div class="cursor-pointer p-2 transition-all rounded-md border hover:bg-accent">
+    <div
+      onClick={() => props.onClick()}
+      class="cursor-pointer p-2 transition-all rounded-md border hover:bg-accent"
+    >
       {props.title}
       <br />
       <div class="text-sm text-muted-foreground">{props.children}</div>
     </div>
+  );
+};
+
+const EmailMfa: Component<{ email: string }> = (props) => {
+  onMount(() => {
+    history.pushState({ step: 'code' }, '');
+  });
+
+  return (
+    <>
+      <CardHeader>
+        <CardTitle class="text-xl">Email MFA</CardTitle>
+        <CardDescription>Enter the code sent to {props.email}</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <VerifyComponent
+          onSubmit={(values, event) => console.log(values)}
+        ></VerifyComponent>
+      </CardContent>
+    </>
+  );
+};
+
+const TotpMfa = () => {
+  onMount(() => {
+    history.pushState({ step: 'code' }, '');
+  });
+
+  return (
+    <>
+      <CardHeader>
+        <CardTitle class="text-xl">Authenticator App MFA</CardTitle>
+        <CardDescription>
+          Enter the code from your authenticator app
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <VerifyComponent
+          onSubmit={(values, event) => console.log(values)}
+        ></VerifyComponent>
+      </CardContent>
+    </>
   );
 };

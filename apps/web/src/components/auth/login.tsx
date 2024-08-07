@@ -16,7 +16,7 @@ import { Component, Show } from 'solid-js';
 import { InitiateLogin } from 'api/src/models/auth/login';
 
 export const LoginComponent: Component<{
-  onInitiate: (login: InitiateLogin) => Promise<void>;
+  onInitiate: (login: InitiateLogin, email: string) => Promise<void>;
 }> = (props) => {
   const [authForm, { Form, Field }] = createForm<LoginInput>({
     validate: valiForm(LoginSchema),
@@ -34,7 +34,10 @@ export const LoginComponent: Component<{
           throw new FormError<LoginInput>('Server error.');
       }
     }
-    await props.onInitiate(login);
+    await props.onInitiate(
+      { ...login, supportedMfas: ['emailMfa', 'totpMfa'] },
+      values.email
+    );
   };
 
   return (
